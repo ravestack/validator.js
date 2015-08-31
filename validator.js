@@ -457,14 +457,18 @@
         if (isNaN(Date.parse(normalizedDate))) {
             return false;
         }
+        if (typeof str !== 'string') {
+          return true;  //if Date.parse() passes, it's the current time
+        }
         //check for valid double digits that could be late days
         //check for all matches since a string like '12/23' is a valid date
-        dayOrYearMatches = str.match(/[23]\d(\D|$)/g);
+        //ignore everything with nearby colons
+        dayOrYearMatches = str.match(/(^|[^:])[23]\d([^:\d]|$)/g);
         if (!dayOrYearMatches) {
             return true;
         }
-        dayOrYear = dayOrYearMatches.map(function(match) {
-            return match.slice(0,2);
+        dayOrYear = dayOrYearMatches.map(function(digitString) {
+            return digitString.match(/\d+/g)[0];
         }).join('/');
         year = String(normalizedDate.getFullYear()).slice(-2);
         //local date and UTC date can differ, but both are valid, so check agains both
